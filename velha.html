@@ -1,0 +1,93 @@
+<!DOCTYPE HTML>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+  </head>
+  <body>
+    <script>
+		const app= ()=>({
+			reset(){
+			    this.g=[3,3]
+				Object.assign(this,{
+					board: new Array(this.g.reduce((a,n)=>a*=n)).fill(''),
+					turns:['x','o'],
+					move:0,
+					status:''
+				})
+			},
+			get turn(){
+			   return this.turns[this.move%this.turns.length]
+			},
+			check(){						
+				const bb=this.board;
+				const b=bb.reduce((a,v,i)=>
+					(v==this.turn && a.push(i.toString()),a)
+					,[])
+			
+		    	
+						
+				const end=[
+			     '012',345,678
+				,'048',246
+				,'036',147,258
+				].map(p=>p.toString().split(''))
+				.some(p=>p.filter(i=>b.includes(i)).length==3)
+				
+				if(end) return this.turn+" ganhou"
+			    if(this.move==8) return "galou"
+			    return "";
+			},
+			play(i){		
+				if ( this.board[i] || this.status || this.move==9) return;		
+				this.board[i] = this.turn;		
+				this.status=this.check();			
+				this.move++;	
+			}
+		})
+    </script>
+    <style>
+    body{
+    font-size: 46px;
+    box-sizing: border-box;
+    text-align: center;
+    --altura: 33vh;
+    }
+    body, p{
+    margin: 0px;
+    padding: 0px;
+    }
+    .grid{
+    box-sizing: border-box;
+    display:flex;
+    flex-wrap: wrap;
+    }
+    .grid>div{
+    box-sizing: border-box;
+    flex: 0 0 33%;
+    border: 1px solid black;
+	vertical-align: middle;
+	line-height: var(--altura);
+	min-height: var(--altura);
+	}
+	</style>
+      <div x-data="app()" x-init="reset()">
+        <div style="position: absolute; 
+        width: 100%;
+         background:#777"
+        @click="reset()"
+        >
+        	<p x-text="status" style="line-height:calc(var(--altura)*3)"/>
+        </div>
+        <div class="grid" >
+            <template x-for="(b, i) in board">
+                <div
+                 @click="play(i)" 
+                 x-text="b"
+               />
+				
+            </template>
+        </div>
+    </div>
+  </body>
+</html>
