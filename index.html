@@ -1,1 +1,92 @@
-it works
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mwssilva</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vuetify@3.1.0/dist/vuetify.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@3/dist/vuetify.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue-router@4"></script>
+</head>
+<body>
+  <div id="app">
+    <v-app>
+      <v-main>
+          <v-toolbar>
+            <v-btn to="/" >Home</v-btn>
+            <v-btn to="/pg-conversor">Conversor Taxas</v-btn>
+          </v-toolbar>
+ 
+          <router-view></router-view>
+      </v-main>
+    </v-app>
+  </div>
+
+  <!-- Home Component -->
+  <script type="text/x-template" id="pg-home">
+    it works
+  </script>
+
+  <script type="text/x-template" id="pg-conversor">
+    <v-row>
+      <v-text-field type="number" step="0.01" suffix="%/dia" class="v-col-4" :model-value="dados.aodia" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); dados.aodia=tmp; dados.aomes = converterTaxas(tmp,1,30); dados.aoano = converterTaxas(tmp,1,360)}"/>
+      <v-text-field type="number" step="0.01" suffix="%/mes" class="v-col-4" :model-value="dados.aomes" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); dados.aodia = converterTaxas(tmp,30,1); dados.aomes=v; dados.aoano = converterTaxas(tmp,1,12)}"/>
+      <v-text-field type="number" step="0.01" suffix="%/ano" class="v-col-4" :model-value="dados.aoano" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); dados.aodia = converterTaxas(tmp,360,1); dados.aomes = converterTaxas(tmp,12,1); dados.aoano=v; }"/>
+    </v-row>
+  </script>
+
+  <script>
+    const { createApp, h, reactive} = Vue;
+    const { createRouter, createWebHashHistory } = VueRouter;
+    const vuetify = Vuetify.createVuetify({
+      theme: {
+        defaultTheme: 'dark',
+      },
+      defaults:{
+        global: {
+          density:'compact',
+          ripple: false,
+        },
+      }
+    });
+
+    
+
+    const converterTaxas = (tx, periodo2,periodo1)=>{
+      return (((1 + tx/100)**(periodo1/periodo2))-1)*100
+    }
+
+    // Components
+    const Home = { template: '#pg-home' };
+    // Define routes
+    const routes = [
+      {  path: '/', component: Home },
+      {  path: '/pg-conversor', component: { 
+          template: '#pg-conversor',
+          setup(){
+            const dados = reactive({});
+            return {
+              dados,
+              converterTaxas,
+            }
+          },
+        } 
+      },
+      {path: '/:_(.*)',  component: { render: ()=> h('h1',{class:'text-center'},'404')}}
+    ];
+
+    // Create router
+    const router = createRouter({
+      history: createWebHashHistory(),
+      routes,
+    });
+
+    // Create Vue app
+    createApp({})
+      .use(router)
+      .use(vuetify)
+      .mount('#app');
+  </script>
+</body>
+</html>
