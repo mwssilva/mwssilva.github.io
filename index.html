@@ -37,14 +37,14 @@
     <v-row>
       <v-input>{{ dados.cdi }}</v-input>
       <v-text-field type="number" step="0.01" suffix="%cdi" :model-value="dados.rate" @update:model-value="v2=>{dados.rate=v2.replace(',','.');}" />
-        <v-input>{{ ((dados.cdi.valor*dados.rate)) }}</v-input>
+        <v-input>{{ ((dados?.cdi.valor*dados.rate)/100) }}</v-input>
         <v-text-field type="number" step="0.01" prefix="R$" :model-value="dados.capital" @update:model-value="v2=>{dados.capital=v2.replace(',','.');}" />
           <v-select prefix="dias" v-model="dados.ir" :items="[
           {title:'<= 180',value:0.225},
           {title:'> 180',value:0.20},
           {title:'> 360',value:0.175},
           {title:'> 720',value:0.15}]" />
-      <v-input>{{ dados.capital*(((dados.cdi.valor*dados.rate)/100)*(1-dados.ir)) }}</v-input>
+      <v-input>{{ dados.capital*(((dados?.cdi.valor*dados.rate)/100)*(1.05-dados.ir)) }}</v-input>
     </v-row>
   </script>
 
@@ -77,9 +77,9 @@
       {  path: '/pg-conversor', component: { 
           template: '#pg-conversor',
           setup(){
-            const dados = reactive({capital:5000, ir:0.225, rate: 1.05});
+            const dados = reactive({capital:5000, ir:0.225, rate: 1.05,cdi:{} });
             onBeforeMount(async ()=>{
-              dados.cdi = {data:'fake',valor:0.041957}//(await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.12/dados/ultimos/1?formato=json').then(x=>x.json())).catch(x=>({data:'fake',valor:0.041957}))
+              dados.cdi = (await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.12/dados/ultimos/1?formato=json').then(x=>x.json()).catch(x=>([{data:'99/99/9999',valor:"0.041957"}])))[0];
             });
             return {
               dados,
