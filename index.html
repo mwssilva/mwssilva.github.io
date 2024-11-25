@@ -16,6 +16,7 @@
           <v-toolbar>
             <v-btn to="/" >Home</v-btn>
             <v-btn to="/pg-conversor">Conversor Taxas</v-btn>
+            <v-btn to="/pg-velha">Jogo da Velha</v-btn>
           </v-toolbar>
  
           <router-view></router-view>
@@ -26,6 +27,10 @@
   <!-- Home Component -->
   <script type="text/x-template" id="pg-home">
     it works
+  </script>
+  
+  <script type="text/x-template" id="pg-embedded">
+    <iframe :src="url" style="width: 100vw; min-height: 87vh;"></iframe>
   </script>
 
   <script type="text/x-template" id="pg-conversor">
@@ -71,9 +76,11 @@
 
     // Components
     const Home = { template: '#pg-home' };
+    const Embedded = { template: '#pg-embedded', props: ['url'] };
     // Define routes
     const routes = [
       {  path: '/', component: Home },
+      {  path: '/pg-velha', component: Embedded, props: { url: 'https://mwssilva.github.io/velha.html'} },
       {  path: '/pg-conversor', component: { 
           template: '#pg-conversor',
           setup(){
