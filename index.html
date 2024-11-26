@@ -35,22 +35,26 @@
 
   <script type="text/x-template" id="pg-conversor">
     <v-row>
-      <v-text-field type="number" step="0.01" suffix="%/dia" class="v-col-4" :model-value="dados.aodia" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); dados.aodia=tmp; dados.aomes = converterTaxas(tmp,1,30); dados.aoano = converterTaxas(tmp,1,360)}"/>
-      <v-text-field type="number" step="0.01" suffix="%/mes" class="v-col-4" :model-value="dados.aomes" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); dados.aodia = converterTaxas(tmp,30,1); dados.aomes=v; dados.aoano = converterTaxas(tmp,1,12)}"/>
-      <v-text-field type="number" step="0.01" suffix="%/ano" class="v-col-4" :model-value="dados.aoano" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); dados.aodia = converterTaxas(tmp,360,1); dados.aomes = converterTaxas(tmp,12,1); dados.aoano=v; }"/>
+      <v-text-field class="v-col-12 v-col-md-3" disabled>{{ dados.cdi.valor }} em {{ dados.cdi.data }}</v-text-field>
+      <v-text-field class="v-col-12 v-col-md-3" type="number" step="0.01" suffix="%/252" :model-value="dados.ao252" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); dados.aodia = converterTaxas(tmp,252,1); dados.aomes = converterTaxas(tmp,252,30); dados.aoano=converterTaxas(tmp,252,360); dados.ao252 = tmp; }"/>
+      <v-text-field class="v-col-12 v-col-md-3" type="number" step="0.01" suffix="%/360" :model-value="dados.aoano" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); dados.aodia = converterTaxas(tmp,360,1); dados.aomes = converterTaxas(tmp,12,1);   dados.aoano = tmp;                       dados.ao252 = converterTaxas(tmp,360,252); }"/>
+      <v-text-field class="v-col-12 v-col-md-3" type="number" step="0.01" suffix="%/30"  :model-value="dados.aomes" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); dados.aodia = converterTaxas(tmp,30,1);  dados.aomes = tmp;                        dados.aoano = converterTaxas(tmp,1,12);  dados.ao252 = converterTaxas(tmp,30,252); }"/>
     </v-row>
     <v-row>
-      <v-input>{{ dados.cdi }}</v-input>
-      <v-text-field type="number" step="0.01" suffix="%cdi" :model-value="dados.rate" @update:model-value="v2=>{dados.rate=v2.replace(',','.');}" />
-        <v-input>{{ ((dados?.cdi.valor*dados.rate)/100) }}</v-input>
-        <v-text-field type="number" step="0.01" prefix="R$" :model-value="dados.capital" @update:model-value="v2=>{dados.capital=v2.replace(',','.');}" />
-          <v-select prefix="dias" v-model="dados.ir" :items="[
-          {title:'<= 180',value:0.225},
-          {title:'> 180',value:0.20},
-          {title:'> 360',value:0.175},
-          {title:'> 720',value:0.15}]" />
-      <v-input>{{ dados.capital*(((dados?.cdi.valor*dados.rate)/100)*(1.05-dados.ir)) }}</v-input>
+      <v-text-field class="v-col-12 v-col-md-2" type="number" step="0.01" suffix="%/1"   :model-value="dados.aodia" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); dados.aodia = tmp;                       dados.aomes = converterTaxas(tmp,1,30);   dados.aoano = converterTaxas(tmp,1,360); dados.ao252 = converterTaxas(tmp,1,252); }" />
+      <v-text-field class="v-col-12 v-col-md-2" type="number" step="0.01" suffix="%cdi" :model-value="dados.rate" @update:model-value="v2=>{dados.rate=v2.replace(',','.');}" />
+      <v-text-field class="v-col-12 v-col-md-2" disabled>{{ ((dados.aodia*dados.rate)) }}</v-text-field>
+      <v-text-field class="v-col-12 v-col-md-2" type="number" step="0.01" prefix="R$" :model-value="dados.capital" @update:model-value="v2=>{dados.capital=v2.replace(',','.');}" />
+      <v-select     class="v-col-12 v-col-md-2" prefix="dias" v-model="dados.ir" :items="dados.faixas" />
+      <v-text-field label="bruto" class="v-col-12 v-col-md-2" disabled prefix="R$" :model-value="dados.capital*(((dados.aodia*dados.rate)/100))" />
+      <v-text-field label="liquido ao dia" class="v-col-12 v-col-md-2" disabled prefix="R$" :model-value="dados.capital*(((dados.aodia*dados.rate)/100)*(1-dados.ir))" />
+      <v-text-field label="liquido" class="v-col-12 v-col-md-2" disabled prefix="R$" :model-value="dados.capital*(1+((((dados.aodia*dados.rate)/100)*(1-dados.ir))))" />
     </v-row>
+
+    <footer>
+        https://calculadorarendafixa.com.br/
+        <br>https://api.bcb.gov.br/dados/serie/bcdata.sgs.12/dados/ultimos/1?formato=json
+    </footer>
   </script>
 
   <script>
@@ -68,8 +72,6 @@
       }
     });
 
-    
-
     const converterTaxas = (tx, periodo2,periodo1)=>{
       return (((1 + tx/100)**(periodo1/periodo2))-1)*100
     }
@@ -84,9 +86,24 @@
       {  path: '/pg-conversor', component: { 
           template: '#pg-conversor',
           setup(){
-            const dados = reactive({capital:5000, ir:0.225, rate: 1.05,cdi:{} });
+            const dados = reactive({
+              capital:5000, 
+              ir:0.225, 
+              rate: 1.05,
+              cdi:{},
+              faixas:[
+                {title:'<= 180 (22.5%)',value:0.225},
+                {title:'> 180 (20%)',value:0.20},
+                {title:'> 360 (17.5%)',value:0.175},
+                {title:'> 720 (15%)',value:0.15}
+              ] 
+            });
             onBeforeMount(async ()=>{
               dados.cdi = (await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.12/dados/ultimos/1?formato=json').then(x=>x.json()).catch(x=>([{data:'99/99/9999',valor:"0.041957"}])))[0];
+              dados.ao252 = converterTaxas(dados.cdi.valor*1,1,252)
+              dados.aoano = converterTaxas(dados.ao252,252,360)
+              dados.aomes = converterTaxas(dados.ao252,252,30)
+              dados.aodia = converterTaxas(dados.ao252,252,1)
             });
             return {
               dados,
