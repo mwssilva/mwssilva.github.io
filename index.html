@@ -16,6 +16,7 @@
           <v-toolbar>
             <v-btn to="/" >Home</v-btn>
             <v-btn to="/pg-conversor">Conversor Taxas</v-btn>
+            <v-btn to="/pg-preco-medio">Preco Medio</v-btn>
             <v-btn to="/pg-velha">Jogo da Velha</v-btn>
           </v-toolbar>
  
@@ -55,6 +56,23 @@
         https://calculadorarendafixa.com.br/
         <br>https://api.bcb.gov.br/dados/serie/bcdata.sgs.12/dados/ultimos/1?formato=json
     </footer>
+  </script>
+
+  <script type="text/x-template" id="pg-preco-medio">
+    <v-row v-for="(p,index) of dados.precos">
+      <v-text-field class="v-col-12 v-col-md-3" type="number" step="1" label="qtd" suffix="UN" :model-value="p.qtd" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); p.qtd = tmp; }"/>
+      <v-text-field class="v-col-12 v-col-md-3" type="number" step="0.01" label="preço" prefix="R$" :model-value="p.preco" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); p.preco = tmp; }"/>
+      <v-text-field class="v-col-12 v-col-md-3" disabled>= R$ {{ p.qtd*p.preco }}</v-text-field>
+	    <v-btn density="default" v-if="dados.precos.length>1" class="v-col-12 v-col-md-3" @click="dados.precos.splice(index, 1)" >-</v-btn>
+    </v-row>
+	<v-row>
+	<v-col>
+		<v-btn density="default" class="v-col-12" @click="dados.precos.push({qtd:1,preco:0})" >+</v-btn>
+		<br>Quantidade:	{{ dados.precos.reduce((a,b)=>a+=b.qtd,0) }}
+		<br>Valor Total:	R$ {{ dados.precos.reduce((a,b)=>a+=b.preco,0) }}
+		<br>Preço Médio:	R$ {{ dados.precos.reduce((a,b)=>a+=b.preco,0)/dados.precos.reduce((a,b)=>a+=b.qtd,0) }}
+	</v-col>
+    </v-row>
   </script>
 
   <script>
@@ -108,6 +126,18 @@
             return {
               dados,
               converterTaxas,
+            }
+          },
+        } 
+      },
+      {  path: '/pg-preco-medio', component: { 
+          template: '#pg-preco-medio',
+          setup(){
+            const dados = reactive({
+              precos:[{qtd:1,preco:0}], 
+            });
+            return {
+              dados,
             }
           },
         } 
