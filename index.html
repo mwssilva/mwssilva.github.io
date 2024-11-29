@@ -35,23 +35,35 @@
   </script>
 
   <script type="text/x-template" id="pg-conversor">
+    <h5>Conversor Taxas & Simulador Renda Fixa (mas são valores aproximados, tá faltando alguma coisa)</h5>
+    <v-container fluid>
     <v-row>
-      <v-text-field class="v-col-12 v-col-md-3" disabled>{{ dados.cdi.valor }} em {{ dados.cdi.data }}</v-text-field>
-      <v-text-field class="v-col-12 v-col-md-3" type="number" step="0.01" suffix="%/252" :model-value="dados.ao252" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); dados.aodia = converterTaxas(tmp,252,1); dados.aomes = converterTaxas(tmp,252,30); dados.aoano=converterTaxas(tmp,252,360); dados.ao252 = tmp; }"/>
-      <v-text-field class="v-col-12 v-col-md-3" type="number" step="0.01" suffix="%/360" :model-value="dados.aoano" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); dados.aodia = converterTaxas(tmp,360,1); dados.aomes = converterTaxas(tmp,12,1);   dados.aoano = tmp;                       dados.ao252 = converterTaxas(tmp,360,252); }"/>
-      <v-text-field class="v-col-12 v-col-md-3" type="number" step="0.01" suffix="%/30"  :model-value="dados.aomes" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); dados.aodia = converterTaxas(tmp,30,1);  dados.aomes = tmp;                        dados.aoano = converterTaxas(tmp,1,12);  dados.ao252 = converterTaxas(tmp,30,252); }"/>
+      <v-text-field label="cdi(bcb.sgs.12)" class="v-col-12 v-col-md-3" disabled>{{ dados.cdi.valor }} em {{ dados.cdi.data }}</v-text-field>
+      <v-text-field label="%aa(252)" class="v-col-12 v-col-md-3" type="number" step="0.01" suffix="%/252" :model-value="dados.ao252" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); dados.aodia = converterTaxas(tmp,252,1); dados.aomes = converterTaxas(tmp,252,30); dados.aoano=converterTaxas(tmp,252,360); dados.ao252 = tmp; }"/>
+      <v-text-field label="%aa(360)" class="v-col-12 v-col-md-3" type="number" step="0.01" suffix="%/360" :model-value="dados.aoano" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); dados.aodia = converterTaxas(tmp,360,1); dados.aomes = converterTaxas(tmp,12,1);   dados.aoano = tmp;                       dados.ao252 = converterTaxas(tmp,360,252); }"/>
+      <v-text-field label="%am(30)" class="v-col-12 v-col-md-3" type="number" step="0.01" suffix="%/30"  :model-value="dados.aomes" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); dados.aodia = converterTaxas(tmp,30,1);  dados.aomes = tmp;                        dados.aoano = converterTaxas(tmp,1,12);  dados.ao252 = converterTaxas(tmp,30,252); }"/>
     </v-row>
     <v-row>
-      <v-text-field class="v-col-12 v-col-md-2" type="number" step="0.01" suffix="%/1"   :model-value="dados.aodia" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); dados.aodia = tmp;                       dados.aomes = converterTaxas(tmp,1,30);   dados.aoano = converterTaxas(tmp,1,360); dados.ao252 = converterTaxas(tmp,1,252); }" />
-      <v-text-field class="v-col-12 v-col-md-2" type="number" step="0.01" suffix="%cdi" :model-value="dados.rate" @update:model-value="v2=>{dados.rate=v2.replace(',','.');}" />
-      <v-text-field class="v-col-12 v-col-md-2" disabled>{{ ((dados.aodia*dados.rate)) }}</v-text-field>
-      <v-text-field class="v-col-12 v-col-md-2" type="number" step="0.01" prefix="R$" :model-value="dados.capital" @update:model-value="v2=>{dados.capital=v2.replace(',','.');}" />
-      <v-select     class="v-col-12 v-col-md-2" prefix="dias" v-model="dados.ir" :items="dados.faixas" />
-      <v-text-field label="bruto" class="v-col-12 v-col-md-2" disabled prefix="R$" :model-value="dados.capital*(((dados.aodia*dados.rate)/100))" />
-      <v-text-field label="liquido ao dia" class="v-col-12 v-col-md-2" disabled prefix="R$" :model-value="dados.capital*(((dados.aodia*dados.rate)/100)*(1-dados.ir))" />
-      <v-text-field label="liquido" class="v-col-12 v-col-md-2" disabled prefix="R$" :model-value="dados.capital*(1+((((dados.aodia*dados.rate)/100)*(1-dados.ir))))" />
+      <v-text-field label="%ad" class="v-col-12 v-col-md-2" type="number" step="0.01" suffix="%/1"   :model-value="dados.aodia" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); dados.aodia = tmp;                       dados.aomes = converterTaxas(tmp,1,30);   dados.aoano = converterTaxas(tmp,1,360); dados.ao252 = converterTaxas(tmp,1,252); }" />
+      <v-text-field class="v-col-12 v-col-md-2" type="number" step="0.01" suffix="%cdi" :model-value="dados.rate" @update:model-value="v2=>{dados.rate=v2.replace(',','.');}" :hint="`${((dados.aodia*dados.rate))}%`" persistent-hint/>
+      
+    
+      <v-text-field label="capital" class="v-col-12 v-col-md-2" type="number" step="0.01" prefix="R$" :model-value="dados.capital" @update:model-value="v2=>{dados.capital=v2.replace(',','.');}" />
+        <v-text-field :label="`bruto ao dia`" class="v-col-12 v-col-md-2" disabled prefix="R$" :model-value="dados.capital*(((dados.aodia*dados.rate)/100))" />
+      <v-select     label="imposto" class="v-col-12 v-col-md-2" prefix="dias" v-model="dados.ir" :items="dados.faixas" :hint="`R$ ${dados.capital*(((dados.aodia*dados.rate)/100)*(dados.ir))}`" persistent-hint/>
     </v-row>
+    <v-row>
+      <v-text-field label="~liquido ao dia" class="v-col-12 v-col-md-2" disabled prefix="R$" :model-value="dados.capital*(((dados.aodia*dados.rate)/100)*(1-dados.ir))" />
 
+      <v-text-field label="~liquido ao mes(20)" class="v-col-12 v-col-md-2" disabled prefix="R$" :model-value="dados.capital*(converterTaxas((dados.aodia*dados.rate)/100,1,20)*(1-dados.ir))" />
+      
+      <v-text-field label="~liquido ao mes(30)" class="v-col-12 v-col-md-2" disabled prefix="R$" :model-value="dados.capital*(converterTaxas((dados.aodia*dados.rate)/100,1,30)*(1-dados.ir))" />
+      
+      <v-text-field label="~liquido ao ano(252)" class="v-col-12 v-col-md-2" disabled prefix="R$" :model-value="dados.capital*(converterTaxas((dados.aodia*dados.rate)/100,1,252)*(1-dados.ir))" />
+      
+      <v-text-field label="~liquido ao ano(360)" class="v-col-12 v-col-md-2" disabled prefix="R$" :model-value="dados.capital*(converterTaxas((dados.aodia*dados.rate)/100,1,360)*(1-dados.ir))" />
+    </v-row>
+    </v-container>
     <footer>
         https://calculadorarendafixa.com.br/
         <br>https://api.bcb.gov.br/dados/serie/bcdata.sgs.12/dados/ultimos/1?formato=json
@@ -60,32 +72,43 @@
 
   <script type="text/x-template" id="pg-preco-medio">
     <v-container fluid>
-    <v-row v-for="(p,index) of dados.precos" align="center">
-      <v-btn  :disabled="dados.precos.length==1" class="v-col-12 v-col-sm-3" @click="dados.precos.splice(index, 1)" >-</v-btn>
-      <v-text-field class="v-col-12 v-col-sm-3" type="number" step="1" label="qtd" suffix="UN" :model-value="p.qtd" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); p.qtd = tmp; }"/>
-      <v-text-field class="v-col-12 v-col-sm-3" type="number" step="0.01" label="preço" prefix="R$" :model-value="p.preco" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); p.preco = tmp; }"/>
-      <v-text-field class="v-col-12 v-col-sm-3" disabled>R$ {{ p.qtd*p.preco }}</v-text-field>
+    <v-row v-for="(p,index) of dados.precos">
+      
+      <v-text-field class="v-col-3" type="number" step="1" label="qtd" suffix="UN" :model-value="p.qtd" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); p.qtd = tmp; }"/>
+      <v-text-field class="v-col-3" type="number" step="0.01" label="preço" prefix="R$" :model-value="p.preco" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); p.preco = tmp; }"/>
+      <v-text-field class="v-col-3" label="subtotal" disabled>R$ {{ p.qtd*p.preco }}</v-text-field>
+      <v-col cols="3">
+        <v-btn  :disabled="dados.precos.length==1" @click="dados.precos.splice(index, 1)" >Del</v-btn>
+        <v-btn v-if="index==dados.precos.length-1" @click="dados.precos.push({qtd:1,preco:10})" >Add</v-btn>
+      </v-col>
     </v-row>
+    
     <v-divider />
-    <v-row align="center">
-      <v-btn class="v-col-12 v-col-sm-3" @click="dados.precos.push({qtd:1,preco:0})" >+</v-btn>
-      <v-text-field class="v-col-12 v-col-sm-3" disabled>{{ dados.precos.reduce((a,b)=>a+=b.qtd,0) }}</v-text-field>
-      <v-text-field class="v-col-12 v-col-sm-3" disabled>R$ {{ dados.precos.reduce((a,b)=>a+=b.qtd*b.preco,0)/dados.precos.reduce((a,b)=>a+=b.qtd,0) }}</v-text-field>
-      <v-text-field class="v-col-12 v-col-sm-3" disabled>R$ {{ dados.precos.reduce((a,b)=>a+=b.qtd*b.preco,0) }}</v-text-field>
+    
+    <v-row>
+      <v-text-field class="v-col-3" label="qtd_total" disabled>{{ dados.precos.reduce((a,b)=>a+=b.qtd,0) }}</v-text-field>
+      <v-text-field class="v-col-3" label="preço_avg" disabled>R$ {{ total/dados.precos.reduce((a,b)=>a+=b.qtd,0) }}</v-text-field>
+      <v-text-field class="v-col-3" label="total" disabled>R$ {{ total }}</v-text-field>
+      <v-col cols="3">
+        <v-btn @click="dados.precos=[{qtd:1,preco:10}]" >Clear</v-btn>
+      </v-col>
     </v-row>
 
-    
-    <v-row align="center">
-      <v-text-field label="margem lucro" class="v-col-12 v-col-sm-3" type="number" step="0.01" suffix="%" :model-value="dados.margem" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); dados.margem = tmp; }"/>
-      <v-text-field class="v-col-12 v-col-sm-3" disabled>{{ dados.precos.reduce((a,b)=>a+=b.qtd,0) }}</v-text-field>
-      <v-text-field class="v-col-12 v-col-sm-3" disabled>R$ {{ dados.precos.reduce((a,b)=>a+=b.qtd*b.preco,0)/dados.precos.reduce((a,b)=>a+=b.qtd,0)*dados.margem }}</v-text-field>
-      <v-text-field class="v-col-12 v-col-sm-3" disabled>R$ {{ dados.precos.reduce((a,b)=>a+=b.qtd*b.preco,0) *dados.margem }}</v-text-field>
+    <v-row>
+      <v-col>
+        <v-text-field label="fator" hint="margem de lucro" class="v-col-3" type="number" step="0.01" suffix="%" :model-value="dados.margem" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); dados.margem = tmp; }"/>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-text-field class="v-col-3" disabled>{{ dados.precos.reduce((a,b)=>a+=b.qtd,0) }}</v-text-field>
+      <v-text-field class="v-col-3" label="preço ajustado" disabled>R$ {{ total/dados.precos.reduce((a,b)=>a+=b.qtd,0)*dados.margem }}</v-text-field>
+      <v-text-field class="v-col-3" disabled>R$ {{ total *dados.margem }}</v-text-field>
     </v-row>
     </v-container>
   </script>
 
   <script>
-    const { createApp, h, reactive, onBeforeMount } = Vue;
+    const { createApp, h, reactive, onBeforeMount, computed } = Vue;
     const { createRouter, createWebHashHistory } = VueRouter;
     const vuetify = Vuetify.createVuetify({
       theme: {
@@ -96,6 +119,9 @@
           density:'compact',
           ripple: false,
         },
+        VTextField:{
+          persistentPlaceholder: true
+        }
       }
     });
 
@@ -143,9 +169,11 @@
           template: '#pg-preco-medio',
           setup(){
             const dados = reactive({
-              precos:[{qtd:1,preco:0}], margem:1.1
+              precos:[{qtd:1,preco:10}], margem:1.1
             });
+            const total = computed(()=>dados.precos.reduce((a,b)=>a+=b.qtd*b.preco,0))
             return {
+              total,
               dados,
             }
           },
