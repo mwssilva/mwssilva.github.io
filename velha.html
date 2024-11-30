@@ -7,10 +7,12 @@
   </head>
   <body>
     <script>
+      let score = {x:0,o:0,games_played:0};
 		const app= ()=>({
 			reset(){
 			    this.g=[3,3]
 				Object.assign(this,{
+          score,
 					board: new Array(this.g.reduce((a,n)=>a*=n)).fill(''),
 					turns:['x','o'],
 					move:0,
@@ -42,7 +44,13 @@
 			play(i){		
 				if ( this.board[i] || this.status || this.move==9) return;		
 				this.board[i] = this.turn;		
-				this.status=this.check();			
+				this.status=this.check();
+        
+        if(this.status){
+          this.score.games_played++;
+          if(this.status.endsWith("ganhou")) this.score[this.turn]++;
+        }
+
 				this.move++;	
 			}
 		})
@@ -79,6 +87,12 @@
         @click="reset()"
         >
         	<p x-text="status" style="line-height:calc(var(--altura)*3)"/>
+        </div>
+        <div style="position: fixed; white-space: pre-line;text-align: left;">Turno Atual:<span x-text="turn"></span>
+          Partidas <span x-text="score.games_played"></span>
+        </div>
+        <div style="position: fixed; right:0; padding-right: 1rem; white-space: pre-line;text-align: right;">X=<span x-text="score.x"></span>
+          O=<span x-text="score.o"></span> 
         </div>
         <div class="grid" >
             <template x-for="(b, i) in board">
