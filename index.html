@@ -13,13 +13,17 @@
   <div id="app">
     <v-app>
       <v-main>
-          <v-toolbar>
-            <v-btn to="/" >Home</v-btn>
-            <v-btn to="/pg-conversor">Conversor Taxas</v-btn>
-            <v-btn to="/pg-preco-medio">Preco Medio</v-btn>
-            <v-btn to="/pg-velha">Jogo da Velha</v-btn>
-          </v-toolbar>
- 
+          <v-app-bar>
+            <v-app-bar-title>mwssilva</v-app-bar-title>
+            <template #extension>
+              <v-tabs>
+                <v-tab to="/" >Home</v-tab>
+                <v-tab to="/pg-conversor">Conversor Taxas</v-tab>
+                <v-tab to="/pg-preco-medio">Preco Medio</v-tab>
+                <v-tab to="/pg-velha">Jogo da Velha</v-tab>
+              </v-tabs>
+            </template>
+          </v-app-bar>
           <router-view></router-view>
       </v-main>
     </v-app>
@@ -50,24 +54,14 @@
       <v-text-field label="%aa(252)" class="v-col-12 v-col-md-3" type="number" step="0.01" suffix="%/252" :model-value="dados.ao252" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); dados.aodia = converterTaxas(tmp,252,1); dados.aomes = converterTaxas(tmp,252,30); dados.ao252 = tmp;                         dados.aoano=converterTaxas(tmp,252,360);  }"></v-text-field>
       <v-text-field label="%am(30)"  class="v-col-12 v-col-md-3" type="number" step="0.01" suffix="%/30"  :model-value="dados.aomes" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); dados.aodia = converterTaxas(tmp,30,1);  dados.aomes = tmp;                        dados.ao252 = converterTaxas(tmp,30,252);  dados.aoano = converterTaxas(tmp,30,360); }"/>
       <v-text-field label="%ad"      class="v-col-12 v-col-md-2" type="number" step="0.01" suffix="%/1"   :model-value="dados.aodia" @update:model-value="v2=>{let v=v2.replace(',','.'); let tmp=Number(v); dados.aodia = tmp;                       dados.aomes = converterTaxas(tmp,1,30);   dados.ao252 = converterTaxas(tmp,1,252);   dados.aoano = converterTaxas(tmp,1,360);  }" />
-      <v-text-field class="v-col-12 v-col-md-2" type="number" step="0.01" suffix="%cdi" :model-value="dados.rate" @update:model-value="v2=>{dados.rate=v2.replace(',','.');}" :hint="`${((dados.aodia*dados.rate))}%`" persistent-hint/>
       
-    
-      <v-text-field label="capital" class="v-col-12 v-col-md-2" type="number" step="0.01" prefix="R$" :model-value="dados.capital" @update:model-value="v2=>{dados.capital=v2.replace(',','.');}" />
-        <v-text-field :label="`bruto ao dia`" class="v-col-12 v-col-md-2" disabled prefix="R$" :model-value="dados.capital*(((dados.aodia*dados.rate)/100))" />
-      <v-select     label="imposto" class="v-col-12 v-col-md-2" prefix="dias" v-model="dados.ir" :items="dados.faixas" :hint="`R$ ${dados.capital*(((dados.aodia*dados.rate)/100)*(dados.ir))}`" persistent-hint/>
-      <v-text-field label="~liquido ao dia" class="v-col-12 v-col-md-2" disabled prefix="R$" :model-value="dados.capital*(((dados.aodia*dados.rate)/100)*(1-dados.ir))" />
-    </v-row>
-    <v-row>
-
-      <v-text-field label="~liquido ao mes(21)" class="v-col-12 v-col-md-2" disabled prefix="R$" :model-value="dados.capital*(converterTaxas((dados.aodia*dados.rate)/100,1,21)*(1-dados.ir))" />
-      
-      <v-text-field label="~liquido ao mes(30)" class="v-col-12 v-col-md-2" disabled prefix="R$" :model-value="dados.capital*(converterTaxas((dados.aodia*dados.rate)/100,1,30)*(1-dados.ir))" />
-    </v-row>
-    <v-row>
-      <v-text-field label="~liquido ao ano(252)" class="v-col-12 v-col-md-2" disabled prefix="R$" :model-value="dados.capital*(converterTaxas((dados.aodia*dados.rate)/100,1,252)*(1-dados.ir))" />
-      
-      <v-text-field label="~liquido ao ano(360)" class="v-col-12 v-col-md-2" disabled prefix="R$" :model-value="dados.capital*(converterTaxas((dados.aodia*dados.rate)/100,1,360)*(1-dados.ir))" />
+      <v-text-field                 class="v-col-12 v-col-md-4" type="number" step="0.01" suffix="%cdi" :model-value="dados.rate" @update:model-value="v2=>{dados.rate=v2.replace(',','.');}" :hint="`${((dados.aodia*dados.rate))}%`" persistent-hint/>
+      <v-text-field label="capital" class="v-col-12 v-col-md-4" type="number" step="0.01" prefix="R$" :model-value="dados.capital" @update:model-value="v2=>{dados.capital=v2.replace(',','.');}" />
+      <v-select     label="imposto" class="v-col-12 v-col-md-4" prefix="dias" v-model="dados.ir" :items="dados.faixas" :hint="`R$ ${(dados.capital*(((dados.aodia*dados.rate)/100)*(dados.ir))).toFixed(4)}`" persistent-hint/>
+      <v-select :items="[1,5,7,21,30,252,360,365]" class="v-col-3 v-col-md-2" label="periodo (composto)" v-model="dados.bruteRate" persistent-placeholder ></v-select>
+      <v-text-field type="number" class="v-col-3 v-col-md-2" label="multiplicador" v-model="dados.multiplicador" ></v-text-field>
+      <v-text-field :label="`~bruto`" class="v-col-3 v-col-md-2" readonly prefix="R$" :model-value="(dados.capital*converterTaxas((dados.aodia*dados.rate)/100,1,dados.bruteRate||1)).toFixed(3)*(dados.multiplicador||1)" ></v-text-field>
+      <v-text-field label="~liquido" class="v-col-3 v-col-md-2" disabled prefix="R$" :model-value="(dados.capital*(converterTaxas((dados.aodia*dados.rate)/100,1,dados.bruteRate||1)*(1-dados.ir))).toFixed(3)*(dados.multiplicador||1)" ></v-text-field>
     </v-row>
     </v-container>
     <footer>
@@ -153,6 +147,8 @@
               ir:0.225, 
               rate: 1.05,
               cdi:{},
+              multiplicador:1,
+              bruteRate:1,
               faixas:[
                 {title:'<= 180 (22.5%)',value:0.225},
                 {title:'> 180 (20%)',value:0.20},
