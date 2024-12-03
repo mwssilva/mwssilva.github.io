@@ -153,12 +153,21 @@
                 {title:'<= 180 (22.5%)',value:0.225},
                 {title:'> 180 (20%)',value:0.20},
                 {title:'> 360 (17.5%)',value:0.175},
-                {title:'> 720 (15%)',value:0.15}
+                {title:'> 720 (15%)',value:0.15},
+                {title:'isento',value:0},
               ] 
             });
             const updateCDI = async ()=>{
-              dados.cdi = (await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.12/dados/ultimos/1?formato=json').then(x=>x.json()).catch(x=>([{data:'99/99/9999',valor:"0.041957"}])))[0];
-              dados.ao252 = converterTaxas(dados.cdi.valor*1,1,252)
+              
+              // dados.cdi = (await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.4392/dados/ultimos/1?formato=json').then(x=>x.json()).catch(x=>([{data:'99/99/9999',valor:"10.0"}])))[0];
+              // dados.ao252 = dados.cdi.valor*1;
+
+              dados.cdi = (await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.4389/dados/ultimos/1?formato=json').then(x=>x.json()).catch(x=>([{data:'99/99/9999',valor:"10.0"}])))[0];
+              dados.ao252 = dados.cdi.valor*1;
+
+              // dados.cdi = (await fetch('https://api.bcb.gov.br/dados/serie/bcdata.sgs.12/dados/ultimos/1?formato=json').then(x=>x.json()).catch(x=>([{data:'99/99/9999',valor:"0.041957"}])))[0];
+              // dados.ao252 = converterTaxas(dados.cdi.valor*1,1,252)
+
               dados.aoano = converterTaxas(dados.ao252,252,360)
               dados.aomes = converterTaxas(dados.ao252,252,30)
               dados.aodia = converterTaxas(dados.ao252,252,1)
