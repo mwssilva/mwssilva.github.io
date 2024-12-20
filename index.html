@@ -26,7 +26,7 @@
                 <v-tab to="/pg-velha">Jogo da Velha</v-tab>
                 <v-tab disabled tooltip="resgatar SDL">Jogo Cobrinha</v-tab>
                 <v-tab disabled tooltip="resgatar javame">Jogo Nim (pearls before swine)</v-tab>
-                <v-tab disabled tooltip="resgatar javame">Jogo hanoi</v-tab>
+                <v-tab to="/pg-hanoi">Jogo hanoi</v-tab>
                 <v-tab disabled tooltip="resgatar php">Algoritmo prim & kruskal</v-tab>
               </v-tabs>
             </template>
@@ -151,6 +151,7 @@
     const routes = [
       {  path: '/', component: Home },
       {  path: '/pg-velha', component: Embedded, props: { url: 'https://mwssilva.github.io/velha.html'} },
+      {  path: '/pg-hanoi', component: Embedded, props: { url: 'https://mwssilva.github.io/hanoi.html'} },
       {  path: '/pg-readme', component: Embedded, props: { url: 'https://mwssilva.github.io/README.md'} },
       {  path: '/pg-bitbucket', component: Embedded, props: { url: 'https://mwssilva.bitbucket.io/'} },
       {  path: '/pg-conversor', component: { 

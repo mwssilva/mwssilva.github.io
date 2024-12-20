@@ -12,8 +12,10 @@
         .tower {
             display: flex;
             flex-direction: column-reverse;
-            width: 30dvw;
+            width: 33dvw;
             border-bottom: 1px solid #333;
+            box-sizing: border-box;
+            text-align: center;
         }
         .disk {
             height: 30px;
@@ -36,8 +38,10 @@
         }
 
         function checkWin() {
+            console.log(towers,numDiscs,towers.map(t=>t.length === numDiscs));
             if (towers.some((t,ix)=>ix!==0 && t.length === numDiscs)) {
                 message.innerHTML = (`Você ganhou em ${moves} movimentos!`);
+                console.log(`Você ganhou em ${moves} movimentos!`);
             }
         }
 
@@ -49,6 +53,7 @@
                 moves++;
             } else {
                 towers[from].push(disc); // Desfaz a movimentação se inválido
+                console.debug(`movimento invalido!`);
             }
         }
 
@@ -56,15 +61,37 @@
             message.innerHTML = `Movimentos: ${moves}`;
             document.querySelectorAll('.tower').forEach((tower, index) => {
                 tower.innerHTML = '';
-                tower.style.border = selectedTower===index?'2px solid #333':'';
+                tower.style.border = selectedTower===index?'2px dashed #333':'';
                 towers[index].forEach(disc => {
                     const discElement = document.createElement('div');
                     discElement.className = 'disk';
                     discElement.innerHTML = disc;
-                    discElement.style.width = `${disc * 20}px`; // Largura proporcional ao disco
+                    discElement.style.width = `${disc*(100/numDiscs)}%`; // Largura proporcional ao disco
                     tower.appendChild(discElement);
                 });
             });
+        }
+
+        function autoplay() {
+            const moves = [];
+            solveHanoi(numDiscs, 0, 2, 1, moves);
+            executeMoves(moves);
+        }
+
+        function solveHanoi(n, from, to, aux, moves) {
+            if (n === 0) return;
+            solveHanoi(n - 1, from, aux, to, moves);
+            moves.push([from, to]);
+            solveHanoi(n - 1, aux, to, from, moves);
+        }
+
+        function executeMoves(moves) {
+            if (moves.length === 0) return;
+            const [from, to] = moves.shift();
+            moveDisc(from, to);
+            render();
+            checkWin();
+            setTimeout(() => executeMoves(moves), 300); // Intervalo de 500ms entre movimentos
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -85,14 +112,16 @@
     </script>
 </head>
 <body >
+    <div style="display: flex;">
+        <input type="number" id="numDiscs" value="3" min="3" max="7" onchange="numDiscs = 1* this.value; initGame()">
+        <button onclick="initGame()">Reiniciar</button>
+        <button onclick="autoplay()">autoplay</button>
+    </div>
+    <span id="message" style="text-align: center;"></span>
     <div id="towers">
         <div class="tower" ></div>
         <div class="tower" ></div>
         <div class="tower" ></div>
-    </div>
-    <div style="display: flex;flex-direction: column;">
-        <button onclick="initGame()">Reiniciar</button>
-        <span id="message" style="text-align: center;"></span>
     </div>
 </body>
 </html>
