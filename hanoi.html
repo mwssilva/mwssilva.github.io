@@ -38,10 +38,8 @@
         }
 
         function checkWin() {
-            console.log(towers,numDiscs,towers.map(t=>t.length === numDiscs));
             if (towers.some((t,ix)=>ix!==0 && t.length === numDiscs)) {
                 message.innerHTML = (`Você ganhou em ${moves} movimentos!`);
-                console.log(`Você ganhou em ${moves} movimentos!`);
             }
         }
 
@@ -53,7 +51,6 @@
                 moves++;
             } else {
                 towers[from].push(disc); // Desfaz a movimentação se inválido
-                console.debug(`movimento invalido!`);
             }
         }
 
