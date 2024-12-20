@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Torre Hanoi</title>
+    <style>
+        #towers {
+            display: flex;
+            justify-content: space-around;
+        }
+        .tower {
+            display: flex;
+            flex-direction: column-reverse;
+            width: 30dvw;
+            border-bottom: 1px solid #333;
+        }
+        .disk {
+            height: 30px;
+            margin: 0 auto;
+            background-color: #ff5733;
+        }
+    </style>
+    <script>
+        let towers;
+        let numDiscs = 3; // Número de discos
+        let moves ;
+        let selectedTower = null;
+
+        function initGame() {
+            document.querySelector('#towers').style.height = `${numDiscs * 30}px`;
+            towers = [[], [], []];
+            moves= 0;
+            towers[0] = Array.from({ length: numDiscs }, (_, i) => i + 1).reverse();
+            render();
+        }
+
+        function checkWin() {
+            if (towers.some((t,ix)=>ix!==0 && t.length === numDiscs)) {
+                message.innerHTML = (`Você ganhou em ${moves} movimentos!`);
+            }
+        }
+
+        function moveDisc(from, to) {
+            if (towers[from].length === 0) return;
+            const disc = towers[from].pop();
+            if (towers[to].length === 0 || towers[to][towers[to].length - 1] > disc) {
+                towers[to].push(disc);
+                moves++;
+            } else {
+                towers[from].push(disc); // Desfaz a movimentação se inválido
+            }
+        }
+
+        function render() {
+            message.innerHTML = `Movimentos: ${moves}`;
+            document.querySelectorAll('.tower').forEach((tower, index) => {
+                tower.innerHTML = '';
+                tower.style.border = selectedTower===index?'2px solid #333':'';
+                towers[index].forEach(disc => {
+                    const discElement = document.createElement('div');
+                    discElement.className = 'disk';
+                    discElement.innerHTML = disc;
+                    discElement.style.width = `${disc * 20}px`; // Largura proporcional ao disco
+                    tower.appendChild(discElement);
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initGame();
+            document.querySelectorAll('.tower').forEach((tower, index) => {
+                tower.addEventListener('click', () => {
+                    if (selectedTower === null) {
+                        selectedTower = index; // Seleciona a torre
+                    } else {
+                        moveDisc(selectedTower, index); // Move o disco para a torre clicada
+                        selectedTower = null; // Desfaz a seleção após o movimento
+                    }
+                    render();
+                    checkWin();
+                });
+            });
+        });
+    </script>
+</head>
+<body >
+    <div id="towers">
+        <div class="tower" ></div>
+        <div class="tower" ></div>
+        <div class="tower" ></div>
+    </div>
+    <div style="display: flex;flex-direction: column;">
+        <button onclick="initGame()">Reiniciar</button>
+        <span id="message" style="text-align: center;"></span>
+    </div>
+</body>
+</html>
