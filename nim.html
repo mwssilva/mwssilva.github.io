@@ -32,19 +32,15 @@
 <body>
     <span>Regras: No seu turno, remova n pérolas de uma torre (e apenas de uma torre). O jogador que remover a última pérola perde.</span>
     <div id="towers"></div>
-    <div style="display: flex; justify-content: center;">
+    <div style="display: flex; justify-content: space-around;">
         <button onclick="initGame()">Reiniciar</button>
         <button onclick="endTurn()">Próximo</button>
-        <span id="message" style="text-align: center;"></span>
     </div>
+    <div id="message" style="text-align: center;"></div>
     <script>
-        let towers;
-        let moves;
-        let turn = '1';
-        let state = null;
-
+        let towers,moves,turn,state,selectedTower;
         function endTurn(){
-            if(selectedTower===null){
+            if(state=='done' || selectedTower===null){
                 return;
             }
             selectedTower = null;
@@ -78,12 +74,12 @@
                     if(state==='done'){
                         return;
                     }
-                    if(selectedTower===null || selectedTower === index){
+                    if(towers[index]>0 && (selectedTower===null || selectedTower === index)){
                         selectedTower = index;
-                        console.log(selectedTower);
                         towers[index]--;
                         render();
                         checkEndGame();
+                        if(towers[index]==0) endTurn();
                     }
                 });
             });
@@ -95,7 +91,7 @@
             const towers_el = document.querySelectorAll('.tower');
             for (const key in towers) {
                 towers_el[key].innerHTML = '';
-                towers_el[key].style.border = selectedTower===key?'2px dashed #333':'';
+                towers_el[key].style.border = selectedTower==key?'2px dashed #333':'';
                 for (let i = 1; i <= towers[key]; i++) {
                     const pearlElement = document.createElement('div');
                     towers_el[key].appendChild(pearlElement);
