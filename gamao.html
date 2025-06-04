@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gamão</title>
+</head>
+
+<body>
+    <div id="board" style="display: flex; flex-direction: row; justify-content: center; margin-top: 20px;">
+        <!-- Tabuleiro será renderizado aqui -->   
+    </div>
+    <div id="message" style="text-align: center;"></div>
+    <script>
+        // Representa as 24 casas do tabuleiro
+        const board = Array(24).fill(null).map(() => ({
+            pieces: 0,
+            owner: null, // 'white' ou 'black'
+        }));
+
+        // Posições especiais
+        const bar = { white: 0, black: 0 };         // Peças capturadas
+        const borneOff = { white: 0, black: 0 };    // Peças retiradas do jogo (objetivo)
+
+        // Exemplo de estrutura de jogador
+        const players = {
+            white: { direction: 1, start: 0, end: 23 },
+            black: { direction: -1, start: 23, end: 0 },
+        };
+
+        // Checagem de fim de jogo
+        function isGameOver() {
+            return borneOff.white === 15 || borneOff.black === 15;
+        }
+
+        function initGame() {
+            
+            render();
+        }
+
+        function render() {
+            document.querySelector('#message').innerText = `Vez do jogador ${turn}`;
+            
+        }
+        initGame();
+    </script>
+</body>
+
+</html>
