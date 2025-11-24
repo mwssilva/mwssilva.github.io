@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puzzle 15</title>
+    <style>
+        #board {
+            display: grid;
+            grid-template-columns: repeat(4, 20vw);            
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .tile {
+            aspect-ratio: 1/1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <span>Clique nas peças para movê-las. Complete o puzzle organizando os números de 1 a 15!</span>
+    <div >
+        Movimentos: <span id="moveCount">0</span>
+        <span class="message" id="message"></span>
+    </div>
+    <div style="display: flex; justify-content: center; gap: 10px; margin: 10px 0;">
+        <button onclick="game.shuffle()">🔀 Embaralhar</button>
+        <button onclick="game.reset()">🔄 Reiniciar</button>
+        <button onclick="game.showSolution()">💡 Mostrar Solução</button>
+    </div>
+    <div id="board"></div>
+    
+    <script>
+        const game = {
+            tiles: [],
+            moves: 0,
+            won: false,
+            solutionShown: false,
+
+            init() {
+                this.tiles = Array.from({ length: 16 }, (_, i) => i === 15 ? 0 : i + 1);
+                this.moves = 0;
+                this.won = false;
+                this.solutionShown = false;
+                this.render();
+            },
+
+            shuffle() {
+                // Embaralha fazendo movimentos aleatórios válidos
+                let emptyIndex = this.tiles.indexOf(0);
+                for (let i = 0; i < 200; i++) {
+                    const neighbors = this.getNeighbors(emptyIndex);
+                    const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
+                    [this.tiles[emptyIndex], this.tiles[randomNeighbor]] = 
+                    [this.tiles[randomNeighbor], this.tiles[emptyIndex]];
+                    emptyIndex = randomNeighbor;
+                }
+                this.moves = 0;
+                this.won = false;
+                this.solutionShown = false;
+                this.render();
+                document.getElementById('message').textContent = '';
+            },
+
+            reset() {
+                this.init();
+                document.getElementById('message').textContent = '';
+            },
+
+            showSolution() {
+                this.tiles = Array.from({ length: 16 }, (_, i) => i === 15 ? 0 : i + 1);
+                this.solutionShown = true;
+                this.render();
+                document.getElementById('message').textContent = '✨ Solução mostrada!';
+                setTimeout(() => {
+                    document.getElementById('message').textContent = '';
+                }, 2000);
+            },
+
+            getNeighbors(index) {
+                const neighbors = [];
+                const row = Math.floor(index / 4);
+                const col = index % 4;
+
+                if (row > 0) neighbors.push(index - 4); // Cima
+                if (row < 3) neighbors.push(index + 4); // Baixo
+                if (col > 0) neighbors.push(index - 1); // Esquerda
+                if (col < 3) neighbors.push(index + 1); // Direita
+
+                return neighbors;
+            },
+
+            moveTile(index) {
+                if (this.won || this.solutionShown) return;
+
+                const emptyIndex = this.tiles.indexOf(0);
+                const neighbors = this.getNeighbors(emptyIndex);
+
+                if (neighbors.includes(index)) {
+                    [this.tiles[index], this.tiles[emptyIndex]] = 
+                    [this.tiles[emptyIndex], this.tiles[index]];
+                    this.moves++;
+                    this.render();
+                    this.checkWin();
+                }
+            },
+
+            checkWin() {
+                const won = this.tiles.every((tile, index) => index === 15 ? tile === 0 : tile === index + 1);
+                if (won && !this.won) {
+                    this.won = true;
+                    document.getElementById('message').textContent = `🎉 Parabéns! Você ganhou em ${this.moves} movimentos!`;
+                }
+            },
+
+            render() {
+                const board = document.getElementById('board');
+                board.innerHTML = '';
+                document.getElementById('moveCount').textContent = this.moves;
+
+                this.tiles.forEach((tile, index) => {
+                    const button = document.createElement('button');
+                    button.className = 'tile';
+                    
+                    if (tile === 0) {
+                        button.className += ' empty';
+                        button.textContent = '';
+                    } else {
+                        button.textContent = tile;
+                    }
+
+                    button.onclick = () => this.moveTile(index);
+                    board.appendChild(button);
+                });
+            }
+        };
+
+        // Inicializa o jogo quando a página carrega
+        window.addEventListener('DOMContentLoaded', () => {
+            game.init();
+    
+        });
+    </script>
+</body>
+
+</html>
